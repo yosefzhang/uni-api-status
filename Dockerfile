@@ -15,6 +15,12 @@ RUN npm install -g pnpm
 RUN apk add --no-cache --virtual .build-deps build-base python3 linux-headers && \
     apk add --no-cache sqlite-libs
 
+# NAS 构建环境走代理（npm/pnpm 依赖下载；Docker daemon 代理只影响拉镜像，不影响 build 容器内请求）
+ENV HTTP_PROXY=http://10.0.0.10:9132
+ENV HTTPS_PROXY=http://10.0.0.10:9132
+ENV ALL_PROXY=http://10.0.0.10:9132
+ENV NO_PROXY=localhost,127.0.0.1
+
 # 设置工作目录
 WORKDIR /app
 
@@ -22,7 +28,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # 安装所有依赖
-RUN pnpm install --frozen-lockfile --unsafe-perm=true
+RUN pnpm install --frozen-lockfile
 
 # 复制项目所有源代码 (在 rebuild 之后)
 COPY . .
