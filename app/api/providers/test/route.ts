@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if endpoint is supported
-    if (!base_url.includes("/chat/completions") && !base_url.includes("/v1/messages")) {
+    if (!base_url.includes("/chat/completions") && !base_url.includes("/v1/messages") && !base_url.includes("/responses")) {
       return NextResponse.json({
         success: false,
         message: "不支持的端点类型",
@@ -63,15 +63,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare test request
-    const testPayload = {
-      model,
-      messages: [
-        {
-          role: "user",
-          content: "渠道测试，仅回复ok",
-        },
-      ],
-    }
+    const isResponsesEndpoint = base_url.includes("/responses")
+    const testPayload = isResponsesEndpoint
+      ? {
+          model,
+          input: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "input_text",
+                  text: "渠道测试，仅回复ok",
+                },
+              ],
+            },
+          ],
+        }
+      : {
+          model,
+          messages: [
+            {
+              role: "user",
+              content: "渠道测试，仅回复ok",
+            },
+          ],
+        }
 
     // Handle different API formats
     const headers: Record<string, string> = {

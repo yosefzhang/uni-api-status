@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         // Check if base_url supports chat completions
         const supported =
           provider.base_url &&
-          (provider.base_url.includes("/chat/completions") || provider.base_url.includes("/v1/messages"))
+          (provider.base_url.includes("/chat/completions") || provider.base_url.includes("/v1/messages") || provider.base_url.includes("/responses"))
 
         providers.push({
           provider: provider.provider,
