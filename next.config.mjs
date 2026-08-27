@@ -13,6 +13,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/@vite/client',
+        destination: '/api/empty',
+      },
+    ]
+  },
 }
 
 export default nextConfig
