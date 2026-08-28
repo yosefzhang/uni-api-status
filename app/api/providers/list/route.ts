@@ -74,7 +74,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ providers })
+    const uniApiBaseUrl = process.env.UNI_API_BASE_URL || "http://localhost:9210/v1"
+
+    return NextResponse.json({ providers, uniApiBaseUrl })
   } catch (error) {
     console.error("Error loading providers:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

@@ -264,7 +264,7 @@ export default function HomePage() {
                 size="sm"
               >
                 <Zap className="w-4 h-4 mr-2" />
-                渠道测试
+                真实测试
               </Button>
 
               {/* Config Editor Button (Admin Only) */}
@@ -337,7 +337,7 @@ export default function HomePage() {
                           className="w-full justify-start"
                         >
                           <Zap className="w-4 h-4 mr-2" />
-                          渠道测试
+                          真实测试
                         </Button>
                         {canAccessConfig && (
                           <Button
