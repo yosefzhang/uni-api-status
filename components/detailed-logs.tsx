@@ -444,7 +444,7 @@ export function DetailedLogs({ apiKey }: DetailedLogsProps) {
                     <TableHead>渠道</TableHead>
                     <TableHead className="w-[100px] text-right">处理耗时</TableHead>
                     <TableHead className="w-[100px] text-right">首字响应</TableHead>
-                    <TableHead className="w-[220px] text-right">Tokens (提示/完成/总计)</TableHead>
+                    <TableHead className="w-[220px] text-right">Tokens (输入/输出/总计)</TableHead>
                     <TableHead className="w-[80px] text-center">内容</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -480,8 +480,8 @@ export function DetailedLogs({ apiKey }: DetailedLogsProps) {
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>提示 Tokens: {log.promptTokens.toLocaleString()}</p>
-                              <p>完成 Tokens: {log.completionTokens.toLocaleString()}</p>
+                              <p>输入 Tokens: {log.promptTokens.toLocaleString()}</p>
+                              <p>输出 Tokens: {log.completionTokens.toLocaleString()}</p>
                               <p>总计 Tokens: {log.totalTokens.toLocaleString()}</p>
                             </TooltipContent>
                           </Tooltip>
@@ -579,7 +579,7 @@ export function DetailedLogs({ apiKey }: DetailedLogsProps) {
                         <span className="font-mono">{formatTime(log.firstResponseTime)}</span>
                       </div>
                       <div className="flex justify-between col-span-2">
-                        <span className="text-muted-foreground">Tokens (提示/完成/总计):</span>
+                        <span className="text-muted-foreground">Tokens (输入/输出/总计):</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span className="font-mono">
@@ -587,7 +587,7 @@ export function DetailedLogs({ apiKey }: DetailedLogsProps) {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>提示: {log.promptTokens.toLocaleString()}, 完成: {log.completionTokens.toLocaleString()}, 总计: {log.totalTokens.toLocaleString()}</p>
+                            <p>输入: {log.promptTokens.toLocaleString()}, 输出: {log.completionTokens.toLocaleString()}, 总计: {log.totalTokens.toLocaleString()}</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>

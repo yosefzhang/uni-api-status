@@ -144,8 +144,8 @@ export function ModelStats({ apiKey }: ModelStatsProps) {
                       <TableHead className="w-[120px] text-right">成功 / 失败</TableHead>
                       <TableHead className="w-[100px] text-right">成功率</TableHead>
                       <TableHead className="w-[120px] text-right">总计 Tokens</TableHead>
-                      <TableHead className="w-[120px] text-right">提示 Tokens</TableHead>
-                      <TableHead className="w-[120px] text-right">完成 Tokens</TableHead>
+                      <TableHead className="w-[120px] text-right">输入 Tokens</TableHead>
+                      <TableHead className="w-[120px] text-right">输出 Tokens</TableHead>
                       <TableHead className="w-[120px] text-right">平均处理耗时</TableHead>
                       <TableHead className="w-[120px] text-right">平均首字响应</TableHead>
                     </TableRow>
@@ -231,7 +231,7 @@ export function ModelStats({ apiKey }: ModelStatsProps) {
                       </div>
                       {/* Tokens (Full Width) */}
                       <div className="flex justify-between items-center col-span-2 pt-1">
-                        <span className="text-muted-foreground">Tokens (提示/完成/总计):</span>
+                        <span className="text-muted-foreground">Tokens (输入/输出/总计):</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             {/* Use compact format for mobile */}
@@ -240,8 +240,8 @@ export function ModelStats({ apiKey }: ModelStatsProps) {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="end">
-                            <p>提示: {formatNumber(model.promptTokens)}</p>
-                            <p>完成: {formatNumber(model.completionTokens)}</p>
+                            <p>输入: {formatNumber(model.promptTokens)}</p>
+                            <p>输出: {formatNumber(model.completionTokens)}</p>
                             <p>总计: {formatNumber(model.totalTokens)}</p>
                           </TooltipContent>
                         </Tooltip>

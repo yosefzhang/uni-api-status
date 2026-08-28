@@ -99,8 +99,8 @@ export function OverviewStats({ apiKey }: OverviewStatsProps) {
       return [
         { title: "总请求数", value: loadingValue, icon: Activity, color: "text-blue-600" },
         { title: "总计 Tokens", value: loadingValue, icon: BarChart3, color: "text-green-600" },
-        { title: "提示 Tokens", value: loadingValue, icon: MessageSquare, color: "text-purple-600" },
-        { title: "完成 Tokens", value: loadingValue, icon: Zap, color: "text-orange-600" },
+        { title: "输入 Tokens", value: loadingValue, icon: MessageSquare, color: "text-purple-600" },
+        { title: "输出 Tokens", value: loadingValue, icon: Zap, color: "text-orange-600" },
         { title: "平均处理耗时", value: loadingValue, icon: Clock, color: "text-red-600" },
         { title: "平均首字响应", value: loadingValue, icon: Timer, color: "text-indigo-600" },
       ];
@@ -120,13 +120,13 @@ export function OverviewStats({ apiKey }: OverviewStatsProps) {
         color: "text-green-600",
       },
       {
-        title: "提示 Tokens",
+        title: "输入 Tokens",
         value: displayNumber(data?.promptTokens),
         icon: MessageSquare,
         color: "text-purple-600",
       },
       {
-        title: "完成 Tokens",
+        title: "输出 Tokens",
         value: displayNumber(data?.completionTokens),
         icon: Zap,
         color: "text-orange-600",
