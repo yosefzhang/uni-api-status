@@ -107,15 +107,15 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     setProviderDialogOpen(true)
   }
   const handleProviderSave = (item: ProviderItem) => {
-    setConfig((c: any) => {
-      const list = Array.isArray(c?.providers) ? c.providers.slice() : []
-      if (providerIndex >= 0) {
-        list[providerIndex] = item
-      } else {
-        list.push(item)
-      }
-      return { ...(c || {}), providers: list }
-    })
+    const list = Array.isArray(config?.providers) ? config.providers.slice() : []
+    if (providerIndex >= 0) {
+      list[providerIndex] = item
+    } else {
+      list.push(item)
+    }
+    const next = { ...(config || {}), providers: list }
+    setConfig(next)
+    void persist(next)
   }
   const handleProviderDelete = (index: number) => {
     setConfig((c: any) => ({
@@ -136,15 +136,15 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     setApiKeyDialogOpen(true)
   }
   const handleApiKeySave = (item: ApiKeyItem) => {
-    setConfig((c: any) => {
-      const list = Array.isArray(c?.api_keys) ? c.api_keys.slice() : []
-      if (apiKeyIndex >= 0) {
-        list[apiKeyIndex] = item
-      } else {
-        list.push(item)
-      }
-      return { ...(c || {}), api_keys: list }
-    })
+    const list = Array.isArray(config?.api_keys) ? config.api_keys.slice() : []
+    if (apiKeyIndex >= 0) {
+      list[apiKeyIndex] = item
+    } else {
+      list.push(item)
+    }
+    const next = { ...(config || {}), api_keys: list }
+    setConfig(next)
+    void persist(next)
   }
   const handleApiKeyDelete = (index: number) => {
     setConfig((c: any) => ({
@@ -158,15 +158,14 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     setPrefsDialogOpen(true)
   }
   const handlePrefsSave = (prefs: any) => {
-    setConfig((c: any) => {
-      const copy = { ...(c || {}) }
-      if (prefs && Object.keys(prefs).length > 0) {
-        copy.preferences = prefs
-      } else {
-        delete copy.preferences
-      }
-      return copy
-    })
+    const copy = { ...(config || {}) }
+    if (prefs && Object.keys(prefs).length > 0) {
+      copy.preferences = prefs
+    } else {
+      delete copy.preferences
+    }
+    setConfig(copy)
+    void persist(copy)
   }
 
   const openEditPrefItem = (field: PreferenceFieldMeta) => {
@@ -174,35 +173,33 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     setPrefItemOpen(true)
   }
   const handlePrefItemSave = (key: string, value: any) => {
-    setConfig((c: any) => {
-      const copy = { ...(c || {}) }
-      const prefs = { ...(copy.preferences || {}) }
-      if (value == null) {
-        delete prefs[key]
-      } else {
-        prefs[key] = value
-      }
-      if (Object.keys(prefs).length > 0) {
-        copy.preferences = prefs
-      } else {
-        delete copy.preferences
-      }
-      return copy
-    })
+    const copy = { ...(config || {}) }
+    const prefs = { ...(copy.preferences || {}) }
+    if (value == null) {
+      delete prefs[key]
+    } else {
+      prefs[key] = value
+    }
+    if (Object.keys(prefs).length > 0) {
+      copy.preferences = prefs
+    } else {
+      delete copy.preferences
+    }
+    setConfig(copy)
+    void persist(copy)
   }
 
-  // ----- 保存 -----
-  const save = async () => {
-    if (!config) return
+  // ----- 保存（序列化并写入 api.yaml）-----
+  const persist = async (cfg: any) => {
     setSaving(true)
     try {
       const ordered: any = {}
-      if (config.providers) ordered.providers = config.providers
-      if (config.api_keys) ordered.api_keys = config.api_keys
-      if (config.preferences) ordered.preferences = config.preferences
-      for (const k of Object.keys(config)) {
+      if (cfg.providers) ordered.providers = cfg.providers
+      if (cfg.api_keys) ordered.api_keys = cfg.api_keys
+      if (cfg.preferences) ordered.preferences = cfg.preferences
+      for (const k of Object.keys(cfg)) {
         if (!["providers", "api_keys", "preferences"].includes(k)) {
-          ordered[k] = config[k]
+          ordered[k] = cfg[k]
         }
       }
       const yamlStr = yaml.dump(ordered, { indent: 2, lineWidth: 100, noRefs: true })
@@ -219,6 +216,11 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     } finally {
       setSaving(false)
     }
+  }
+
+  const save = async () => {
+    if (!config) return
+    await persist(config)
   }
 
   const reload = async () => {
