@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     try {
       // 使用参数化查询以防止 SQL 注入
       let whereClauses: string[] = ["r.api_key = $1", "r.endpoint = $2"]
-      const params: (string | number | boolean)[] = [apiKey, "POST /v1/chat/completions"]
+      const params: (string | number | boolean)[] = [apiKey, "/v1/chat/completions"]
       let paramIndex = 3;
 
       if (model) {

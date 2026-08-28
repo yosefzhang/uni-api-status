@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
           COALESCE(AVG(r.first_response_time), 0) as avgFirstResponseTime
         FROM request_stats r
         LEFT JOIN channel_stats c ON r.request_id = c.request_id
-        WHERE r.api_key = $1 AND r.endpoint = 'POST /v1/chat/completions'
+        WHERE r.api_key = $1 AND r.endpoint = '/v1/chat/completions'
         GROUP BY r.model
         ORDER BY requests DESC
       `,

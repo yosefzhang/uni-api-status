@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
           `
           SELECT DISTINCT model
           FROM request_stats
-          WHERE api_key = $1 AND endpoint = 'POST /v1/chat/completions'
+          WHERE api_key = $1 AND endpoint = '/v1/chat/completions'
           ORDER BY model
         `,
           [apiKey],
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
           `
           SELECT DISTINCT provider
           FROM request_stats
-          WHERE api_key = $1 AND endpoint = 'POST /v1/chat/completions'
+          WHERE api_key = $1 AND endpoint = '/v1/chat/completions'
           ORDER BY provider
         `,
           [apiKey],
@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
       ])
 
       return NextResponse.json({
-        models: models.map((row: any) => row.model),
-        providers: providers.map((row: any) => row.provider),
+        models: models.map((row: any) => row.model).filter((m: any) => m),
+        providers: providers.map((row: any) => row.provider).filter((p: any) => p),
       })
     } catch (dbError) {
       throw dbError

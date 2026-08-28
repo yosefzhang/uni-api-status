@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
           COALESCE(AVG(process_time), 0) as avgProcessTime,
           COALESCE(AVG(first_response_time), 0) as avgFirstResponseTime
         FROM request_stats
-        WHERE api_key = $1 AND endpoint = 'POST /v1/chat/completions'
+        WHERE api_key = $1 AND endpoint = '/v1/chat/completions'
       `,
         [apiKey],
       )
