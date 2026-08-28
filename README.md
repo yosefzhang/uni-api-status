@@ -102,8 +102,8 @@
     # STATS_DB_PASSWORD=your_postgres_password
     # STATS_DB_NAME=your_uniapi_database
 
-    # (可选) 指定应用运行端口，默认为 3000
-    # PORT=3000
+    # 本地开发端口由 package.json 的 dev 脚本 `-p` 指定（默认 19212）。
+    # 注意：Next.js 的 `next dev` 不会读取 .env 中的 PORT。
     ```
 
     > **⚠️ 重要：文件权限**
@@ -117,7 +117,7 @@
     ```
 
 5. **访问应用**
-    在浏览器中打开 `http://localhost:3000` (或你指定的端口)。
+    在浏览器中打开 `http://localhost:19212`。
 
 ## 🐳 Docker 部署
 
@@ -144,11 +144,11 @@
         image: ghcr.io/melosbot/uni-api-status:latest
         restart: unless-stopped
         ports:
-          # 将宿主机的 3000 端口映射到容器。如果 3000 端口被占用，请修改左侧值，如 "8080:3000"
-          - "3000:3000"
+          # 将宿主机的 19212 端口映射到容器。如果被占用，请修改左侧值，如 "18080:19212"
+          - "19212:19212"
         environment:
           - NODE_ENV=production
-          - PORT=3000
+          - PORT=19212
           # 以下为容器内的路径，与 volumes 挂载点对应
           - API_YAML_PATH=/app/config/api.yaml
           - STATS_DB_TYPE=sqlite # 或 postgres
@@ -189,9 +189,9 @@
 ```bash
 docker run -d \
   --name uniapi-frontend \
-  -p 3000:3000 \
+  -p 19212:19212 \
   -e NODE_ENV=production \
-  -e PORT=3000 \
+  -e PORT=19212 \
   -e API_YAML_PATH=/app/config/api.yaml \
   -e STATS_DB_TYPE=sqlite \
   -e STATS_DB_PATH=/app/data/stats.db \
@@ -209,7 +209,7 @@ docker run -d \
 | 变量名          | 描述                                | 容器内推荐值           |
 | --------------- | ----------------------------------- | ---------------------- |
 | `NODE_ENV`      | 运行环境                            | `production`           |
-| `PORT`          | 容器内应用监听端口                  | `3000`                 |
+| `PORT`          | 容器内应用监听端口                  | `19212`                |
 | `API_YAML_PATH` | `api.yaml` 在容器内的绝对路径       | `/app/config/api.yaml` |
 | `STATS_DB_TYPE` | 数据库类型 (`sqlite` 或 `postgres`) | `sqlite`               |
 | `STATS_DB_PATH` | `stats.db` 在容器内的绝对路径 (仅当 `STATS_DB_TYPE` 为 `sqlite` 时) | `/app/data/stats.db`   |
@@ -222,7 +222,7 @@ docker run -d \
 ## 🧭 功能导航
 
 1. **设置 API Key**: 首次访问或点击右上角设置图标，输入你的 UniAPI Key 以验证身份和权限。
-2. **配置管理 (仅管理员)**: 在 "配置管理" 页面，在线编辑、上传或下载 `api.yaml` 文件。
+2. **配置管理 / 在线配置 (仅管理员)**: "配置管理" 页面支持在线编辑、上传或下载 `api.yaml` 文件；"在线配置" 页面以表格 + 弹窗形式管理 providers / api_keys / preferences，新增、编辑、删除后立即写入 `api.yaml`。
 3. **统计与日志**: 在 "统计信息" 页面，查看概览、模型、渠道维度的统计图表，并查询详细的请求日志。
 4. **渠道测试**: 在 "渠道测试" 页面，对 `api.yaml` 中配置的渠道进行连通性测试。
 
@@ -260,6 +260,7 @@ docker run -d \
 - `GET /api/filters`: 获取日志筛选选项 (可用模型、渠道)。
 - `GET /api/providers/list`: 获取渠道列表及其配置 (用于渠道测试)。
 - `POST /api/providers/test`: 测试指定渠道的连通性。
+- `POST /api/providers/models`: 获取指定渠道的模型列表 (用于"在线配置"的"获取渠道模型")。
 
 </details>
 
@@ -268,7 +269,7 @@ docker run -d \
 - **依赖 UniAPI**: 本应用强依赖于 `uni-api` 服务，请确保其正常运行且文件路径配置正确。
 - **备份配置**: 在进行任何重大配置修改前，强烈建议使用 "下载" 功能备份当前的 `api.yaml` 文件。
 - **文件权限**: 再次强调，请务必确保正确的 **读写** (`api.yaml`) 和 **读取** (`stats.db`) 权限。
-- **数据库只读**: 应用默认以只读方式访问 `stats.db`，请勿尝试对其进行写操作，以免损坏数据库。
+- **数据库只读**: 应用以只读方式访问 `stats.db`，请勿尝试对其进行写操作；当数据库文件不存在时，统计会安全降级为空数据（不会崩溃）。
 
 ## 🤝 贡献
 

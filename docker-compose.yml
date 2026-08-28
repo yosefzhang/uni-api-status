@@ -2,10 +2,10 @@ services:
   uniapi-frontend:
     image: uniapi-frontend:latest
     ports:
-      - "3000:3000"
+      - "19212:19212"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=19212
       - API_YAML_PATH=/app/api.yaml
       - STATS_DB_TYPE=sqlite
       - STATS_DB_PATH=/app/data/stats.db
