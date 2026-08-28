@@ -1,6 +1,7 @@
 // 共享表单字段组件：仅使用 Input 和 Select，附带 README 注释说明
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Plus, Trash2, RefreshCw, Loader2 } from "lucide-react"
+import { Plus, Trash2, RefreshCw, Loader2, Wand2 } from "lucide-react"
 
 // 单行字段：标签（上）+ 控件（下），注释以小字放在标签旁
 export function FieldRow({
@@ -224,6 +225,19 @@ export function ModelListField({
   actionLoading?: boolean
 }) {
   const items = values.length > 0 ? values : [{ upstream: "", alias: "" }]
+  const [prefix, setPrefix] = useState("")
+
+  const handleAutoFillPrefix = () => {
+    const p = prefix.trim()
+    onChange(
+      items.map((m) => {
+        const upstream = m.upstream.trim()
+        if (!upstream) return m
+        return { ...m, alias: p ? `${p}/${upstream}` : upstream }
+      }),
+    )
+  }
+
   return (
     <FieldRow label={label} description={description}>
       <div className="space-y-1.5">
@@ -271,7 +285,7 @@ export function ModelListField({
             </Button>
           </div>
         ))}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Button
             type="button"
             variant="outline"
@@ -297,6 +311,34 @@ export function ModelListField({
               {actionLabel}
             </Button>
           )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onChange([])}
+            title="清空所有模型配置"
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-1" />
+            清空模型
+          </Button>
+          <div className="basis-full" />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAutoFillPrefix}
+            title="将「映射模型ID」填充为「前缀/渠道模型ID」"
+          >
+            <Wand2 className="h-3.5 w-3.5 mr-1" />
+            自动填充前缀
+          </Button>
+          <Input
+            value={prefix}
+            onChange={(e) => setPrefix(e.target.value)}
+            placeholder="输入前缀"
+            className="h-8 w-24 shrink-0 font-mono text-xs"
+          />
         </div>
       </div>
     </FieldRow>
