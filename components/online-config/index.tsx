@@ -26,6 +26,7 @@ import {
 import yaml from "js-yaml"
 import { ProviderDialog, type ProviderItem } from "./provider-form"
 import { ApiKeyDialog, type ApiKeyItem } from "./api-key-form"
+import { modelToRows } from "./fields"
 import {
   PreferencesDialog,
   PreferenceItemDialog,
@@ -36,6 +37,58 @@ import {
 
 interface OnlineConfigProps {
   apiKey: string
+}
+
+const MODEL_COLLAPSE_LIMIT = 5
+
+// model 列表单元格：渠道模型ID / 映射模型ID 两列表格，默认最多展示 5 行，超出可展开/收起
+function ModelListCell({ model }: { model?: any[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const rows = modelToRows(model)
+  if (rows.length === 0) {
+    return <span className="text-xs text-muted-foreground">（自动获取全部模型）</span>
+  }
+  const showAll = expanded || rows.length <= MODEL_COLLAPSE_LIMIT
+  const visible = showAll ? rows : rows.slice(0, MODEL_COLLAPSE_LIMIT)
+  return (
+    <div className="space-y-1">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="h-auto bg-muted px-3 py-2 text-xs font-bold text-foreground whitespace-nowrap">
+              渠道模型ID
+            </TableHead>
+            <TableHead className="h-auto bg-muted px-3 py-2 text-xs font-bold text-foreground whitespace-nowrap">
+              映射模型ID
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {visible.map((r, idx) => (
+            <TableRow key={idx} className="hover:bg-transparent">
+              <TableCell className="border-t px-3 py-1.5 text-xs break-all align-top">
+                {r.upstream}
+              </TableCell>
+              <TableCell className="border-t px-3 py-1.5 text-xs break-all align-top text-muted-foreground">
+                {r.alias || "—"}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {rows.length > MODEL_COLLAPSE_LIMIT && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-xs text-muted-foreground"
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? `收起（共 ${rows.length} 项）` : `展开（共 ${rows.length} 项）`}
+        </Button>
+      )}
+    </div>
+  )
 }
 
 export function OnlineConfig({ apiKey }: OnlineConfigProps) {
@@ -247,51 +300,10 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     }).join("，") + (model.length > 3 ? ` …（共 ${model.length} 项）` : "")
   }
 
-  // 渲染 api 列表为可读字符串
-  const renderApi = (api: any): string => {
-    if (!api) return "—"
-    if (Array.isArray(api)) {
-      if (api.length === 0) return "—"
-      return `${String(api[0]).slice(0, 12)}…（共 ${api.length} 个）`
-    }
-    return String(api).slice(0, 16) + (String(api).length > 16 ? "…" : "")
-  }
-
-  // 对象转可读字符串（k: v，逗号分隔）
-  const objectToString = (obj: any): string => {
-    if (!obj || typeof obj !== "object") return "—"
-    return Object.entries(obj).map(([k, v]) => `${k}: ${v}`).join("，")
-  }
-
-  // Provider 表格行（配置项 -> 值），仅显示已配置字段
-  const providerRows = (p: ProviderItem): { label: string; value: string }[] => {
-    const rows: { label: string; value: string }[] = []
-    rows.push({ label: "provider", value: p.provider || "未命名" })
-    rows.push({ label: "base_url", value: p.base_url || "—" })
-    rows.push({ label: "api", value: renderApi(p.api) })
-    rows.push({ label: "model", value: renderModel(p.model) })
-    if (p.tools != null) rows.push({ label: "tools", value: p.tools ? "启用" : "禁用" })
-    if (p.engine) rows.push({ label: "engine", value: p.engine })
-    if (p.notes) rows.push({ label: "notes", value: p.notes })
-    const prefs = p.preferences || {}
-    if (prefs.proxy) rows.push({ label: "proxy", value: String(prefs.proxy) })
-    if (prefs.api_key_rate_limit != null) rows.push({ label: "api_key_rate_limit", value: String(prefs.api_key_rate_limit) })
-    if (prefs.api_key_cooldown_period != null) rows.push({ label: "api_key_cooldown_period", value: String(prefs.api_key_cooldown_period) })
-    if (prefs.api_key_schedule_algorithm) rows.push({ label: "api_key_schedule_algorithm", value: String(prefs.api_key_schedule_algorithm) })
-    if (prefs.cooldown_period != null) rows.push({ label: "cooldown_period", value: String(prefs.cooldown_period) })
-    if (prefs.model_timeout) rows.push({ label: "model_timeout", value: objectToString(prefs.model_timeout) })
-    if (prefs.keepalive_interval) rows.push({ label: "keepalive_interval", value: objectToString(prefs.keepalive_interval) })
-    if (prefs.headers) rows.push({ label: "headers", value: objectToString(prefs.headers) })
-    if (prefs.max_request_body_bytes != null) rows.push({ label: "max_request_body_bytes", value: String(prefs.max_request_body_bytes) })
-    return rows
-  }
-
   // ApiKey 表格行（配置项 -> 值），仅显示已配置字段
   const apiKeyRows = (k: ApiKeyItem): { label: string; value: string }[] => {
     const rows: { label: string; value: string }[] = []
-    rows.push({ label: "api", value: k.api || "—" })
     rows.push({ label: "model", value: renderModel(k.model) })
-    if (k.role) rows.push({ label: "role", value: k.role })
     const prefs = k.preferences || {}
     if (prefs.SCHEDULING_ALGORITHM) rows.push({ label: "SCHEDULING_ALGORITHM", value: String(prefs.SCHEDULING_ALGORITHM) })
     if (prefs.AUTO_RETRY != null) rows.push({ label: "AUTO_RETRY", value: String(prefs.AUTO_RETRY) })
@@ -358,7 +370,7 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
           </div>
 
           {/* ---------- Providers Tab ---------- */}
-          <TabsContent value="providers" className="space-y-3">
+          <TabsContent value="providers" className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-2 items-start">
             {providers.length === 0 ? (
               <Card className="border-dashed">
                 <CardContent className="p-8 text-center text-muted-foreground">
@@ -394,16 +406,9 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
                         </Tooltip>
                       </div>
                     </div>
-                    <Table>
-                      <TableBody>
-                        {providerRows(p).map((r) => (
-                          <TableRow key={r.label}>
-                            <TableCell className="w-[220px] font-mono text-xs">{r.label}</TableCell>
-                            <TableCell className="text-xs break-all">{r.value}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                    <div className="px-4 py-3">
+                      <ModelListCell model={p.model} />
+                    </div>
                   </CardContent>
                 </Card>
               ))
@@ -411,7 +416,7 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
           </TabsContent>
 
           {/* ---------- API Keys Tab ---------- */}
-          <TabsContent value="api_keys" className="space-y-3">
+          <TabsContent value="api_keys" className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-2 items-start">
             {apiKeys.length === 0 ? (
               <Card className="border-dashed">
                 <CardContent className="p-8 text-center text-muted-foreground">
