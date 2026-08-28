@@ -479,6 +479,8 @@ export function ApiKeyModal({
                           size="sm"
                           className="h-5 w-5 p-0 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => handleDeleteSavedKey(savedKey.key, e)}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onPointerUp={(e) => e.stopPropagation()}
                           title={`删除 Key`}
                         >
                           <Trash2 className="h-3 w-3" />

@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Save, RefreshCw, Plus, Loader2, Server, KeyRound, SlidersHorizontal, Pencil, Trash2 } from "lucide-react"
+import { RefreshCw, Plus, Server, KeyRound, SlidersHorizontal, Pencil, Trash2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -118,10 +118,10 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     void persist(next)
   }
   const handleProviderDelete = (index: number) => {
-    setConfig((c: any) => ({
-      ...(c || {}),
-      providers: providers.filter((_, i) => i !== index),
-    }))
+    const list = providers.filter((_, i) => i !== index)
+    const next = { ...(config || {}), providers: list }
+    setConfig(next)
+    void persist(next)
   }
 
   // ----- API Key 弹窗操作 -----
@@ -147,10 +147,10 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     void persist(next)
   }
   const handleApiKeyDelete = (index: number) => {
-    setConfig((c: any) => ({
-      ...(c || {}),
-      api_keys: apiKeys.filter((_, i) => i !== index),
-    }))
+    const list = apiKeys.filter((_, i) => i !== index)
+    const next = { ...(config || {}), api_keys: list }
+    setConfig(next)
+    void persist(next)
   }
 
   // ----- Preferences 弹窗操作 -----
@@ -218,11 +218,6 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
     }
   }
 
-  const save = async () => {
-    if (!config) return
-    await persist(config)
-  }
-
   const reload = async () => {
     await loadConfig()
     toast({ title: "已重新加载", description: "已撤销未保存的本地修改。" })
@@ -234,7 +229,6 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
         <div className="flex items-center justify-between">
           <Skeleton className="h-7 w-32" />
           <div className="flex gap-2">
-            <Skeleton className="h-9 w-24" />
             <Skeleton className="h-9 w-24" />
           </div>
         </div>
@@ -320,10 +314,6 @@ export function OnlineConfig({ apiKey }: OnlineConfigProps) {
             <Button variant="outline" size="sm" onClick={reload} disabled={saving}>
               <RefreshCw className="w-4 h-4 mr-2" />
               重新加载
-            </Button>
-            <Button onClick={save} disabled={saving} size="sm">
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {saving ? "保存中..." : "保存到 api.yaml"}
             </Button>
           </div>
         </div>

@@ -332,12 +332,12 @@ export function ChannelTester({ apiKey }: ChannelTesterProps) {
                        <TableRow key={i}>
                          <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                          <TableCell><Skeleton className="h-5 w-full" /></TableCell>
-                         <TableCell><Skeleton className="h-8 w-full" /></TableCell> {/* Select Skeleton */}
+                         <TableCell><Skeleton className="h-8 w-full" /></TableCell>
                          <TableCell className="text-center"><Skeleton className="h-5 w-5 rounded-full mx-auto" /></TableCell>
-                         <TableCell><Skeleton className="h-5 w-full rounded-md" /></TableCell> {/* Badge Skeleton */}
-                         <TableCell><Skeleton className="h-5 w-full" /></TableCell> {/* Message Skeleton */}
+                         <TableCell><Skeleton className="h-5 w-full rounded-md" /></TableCell>
+                         <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                          <TableCell className="text-right"><Skeleton className="h-5 w-full ml-auto" /></TableCell>
-                         <TableCell className="text-center"><Skeleton className="h-7 w-7 rounded-sm mx-auto" /></TableCell> {/* Button Skeleton */}
+                         <TableCell className="text-center"><Skeleton className="h-7 w-7 rounded-sm mx-auto" /></TableCell>
                        </TableRow>
                      ))}
                    </TableBody>
