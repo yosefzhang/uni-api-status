@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 import { Pool } from "pg";
 import { promisify } from "util";
+import fs from "fs";
 
 const dbType = process.env.STATS_DB_TYPE || "sqlite";
 
@@ -28,21 +29,29 @@ if (dbType === "postgres") {
   };
 } else {
   const dbPath = process.env.STATS_DB_PATH || "./data/stats.db";
-  const sqlite = new sqlite3.Database(dbPath);
-  db = sqlite;
 
-  const all = promisify((sql: string, params: any[], callback: (err: Error | null, rows: any[]) => void) =>
-    sqlite.all(sql, params, callback)
-  );
-  const run = promisify((sql: string, params: any[], callback: (err: Error | null) => void) =>
-    sqlite.run(sql, params, callback)
-  );
+  // 统计数据库可能尚未生成（例如 uni-api 从未记录过任何请求）。
+  // 此时以只读方式打开会抛 SQLITE_CANTOPEN，这里降级为返回空数据，避免进程崩溃。
+  if (!fs.existsSync(dbPath)) {
+    console.warn(`[db] 统计数据库不存在，统计功能暂不可用: ${dbPath}`);
+    db = null;
+    query = async () => [];
+  } else {
+    const sqlite = new sqlite3.Database(dbPath, sqlite3.OPEN_READONLY);
+    db = sqlite;
 
-  query = async (sql: string, params: any[] = []) => {
-    // Replace $1, $2, etc. with ? for SQLite
-    const sqliteSql = sql.replace(/\$\d+/g, "?");
-    return await all(sqliteSql, params);
-  };
+    const all = promisify((sql: string, params: any[], callback: (err: Error | null, rows: any[]) => void) =>
+      sqlite.all(sql, params, callback)
+    );
+    const run = promisify((sql: string, params: any[], callback: (err: Error | null) => void) =>
+      sqlite.run(sql, params, callback)
+    );
+
+    query = async (sql: string, params: any[] = []) => {
+      const sqliteSql = sql.replace(/\$\d+/g, "?");
+      return await all(sqliteSql, params);
+    };
+  }
 }
 
 export { db, query };
