@@ -164,7 +164,15 @@ export function DetailedLogs({ apiKey }: DetailedLogsProps) {
   const formatTimestampGMT8 = (timestamp: string): string => {
     if (!timestamp) return "无效日期";
     try {
-      const date = new Date(timestamp);
+      // SQLite 以 UTC 存储时间戳（形如 "YYYY-MM-DD HH:MM:SS"），不带时区标记。
+      // 若不补时区后缀，new Date 会按本地时区解析，导致 GMT+8 转换少 8 小时。
+      let normalized = timestamp.trim();
+      const hasOffset = /[+-]\d{2}:?\d{2}$/.test(normalized);
+      const hasUtcMarker = /z$/i.test(normalized);
+      if (!hasOffset && !hasUtcMarker) {
+        normalized = normalized.replace(" ", "T") + "Z";
+      }
+      const date = new Date(normalized);
       // Check if the date is valid after parsing
       if (isNaN(date.getTime())) {
           console.warn("无效的时间戳格式:", timestamp);
